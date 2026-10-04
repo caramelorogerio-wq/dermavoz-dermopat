@@ -8,7 +8,6 @@
  */
 
 import type { Amostra } from "./amostras";
-import { intervaloBlocos, rotuloBlocos } from "./relatorio-docx";
 
 export type DadosHL7 = {
   numeroAnalise: string;
@@ -44,20 +43,6 @@ const linhasTexto = (texto: string) =>
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
-
-/** Descrição legível do resumo técnico de uma amostra. */
-const resumoTexto = (a: Amostra, primeiroBloco: number) =>
-  [
-    `N.º de fragmentos: ${a.resumo.fragmentos}`,
-    `${rotuloBlocos(a.resumo.blocos)}: ${intervaloBlocos(primeiroBloco, a.resumo.blocos)}`,
-    `Seccionado: ${a.resumo.seccionado ? "Sim" : "Não"}`,
-    `Inclusão: ${a.resumo.inclusao === "total" ? "Total" : "Com reserva"}`,
-    `Código de facturação: ${a.resumo.codigoFaturacao}`,
-  ].join("; ");
-
-/** Primeiro número de bloco desta amostra (numeração contínua na análise). */
-const primeiroBloco = (lista: Amostra[], indice: number) =>
-  lista.slice(0, indice).reduce((t, a) => t + Math.max(1, a.resumo.blocos), 0) + 1;
 
 
 /**
@@ -108,7 +93,7 @@ export const gerarORU = ({
         String(ordem),
         analise,
         `${analise}-${ordem}`,
-        `${a.resumo.codigoFaturacao}^${titulo}^L`,
+        titulo,
         "",
         "",
         ts,
@@ -155,23 +140,6 @@ export const gerarORU = ({
       );
     }
 
-    obx += 1;
-    segmentos.push(
-      [
-        "OBX",
-        String(obx),
-        "TX",
-        "RESUMO^Resumo técnico^L",
-        String(ordem),
-        escaparHL7(resumoTexto(a, primeiroBloco(usaveis, i))),
-        "",
-        "",
-        "",
-        "",
-        "",
-        "F",
-      ].join("|"),
-    );
   });
 
   // HL7 v2 usa CR como separador de segmento.
@@ -205,7 +173,6 @@ export const gerarBundleFhir = ({
           id: `${analise}-${ordem}`,
           accessionIdentifier: { value: `${analise}-${ordem}` },
           type: { text: titulo },
-          note: [{ text: resumoTexto(a, primeiroBloco(usaveis, i)) }],
         },
         request: { method: "PUT", url: idEspecime },
       },
@@ -243,12 +210,6 @@ export const gerarBundleFhir = ({
           performer: [{ display: medico || servico }],
           specimen: [{ reference: idEspecime, display: titulo }],
           conclusion: a.texto.trim(),
-          extension: [
-            {
-              url: "urn:dermavoz:codigo-facturacao",
-              valueString: a.resumo.codigoFaturacao,
-            },
-          ],
         },
         request: { method: "PUT", url: idRelatorio },
       },

@@ -75,13 +75,13 @@ import {
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({
     meta: [
-      { title: "Consultório — DermaVoz" },
+      { title: "Consultório — DermOpat Macroscopia" },
       {
         name: "description",
         content:
           "Grave a voz, transcreva em português europeu e guarde os relatórios associados aos seus doentes, em privado.",
       },
-      { property: "og:title", content: "Consultório — DermaVoz" },
+      { property: "og:title", content: "Consultório — DermOpat Macroscopia" },
       {
         property: "og:description",
         content:
@@ -706,13 +706,11 @@ function AppPage() {
             )}`,
 
           texto,
-          amostras,
-          fragmentos: amostraActiva.resumo.fragmentos,
-          blocos: amostraActiva.resumo.blocos,
-          seccionado: amostraActiva.resumo.seccionado,
-          inclusao: amostraActiva.resumo.inclusao,
-          codigo_faturacao:
-            amostraActiva.resumo.codigoFaturacao,
+          amostras: amostras.map(({ id, titulo, texto: textoAmostra }) => ({
+            id,
+            titulo,
+            texto: textoAmostra,
+          })),
           expira_em: calcularExpiraEm(
             configRetencao,
             agora,
@@ -771,15 +769,7 @@ function AppPage() {
             texto: a.texto ?? "",
             resumo: { ...resumoVazio(), ...(a.resumo ?? {}) },
           }))
-        : [
-            novaAmostra("", r.texto, {
-              fragmentos: r.fragmentos ?? 0,
-              blocos: r.blocos ?? 1,
-              seccionado: r.seccionado ?? false,
-              inclusao: r.inclusao ?? "total",
-              codigoFaturacao: r.codigo_faturacao ?? "31057",
-            }),
-          ];
+        : [novaAmostra("", r.texto)];
 
     setAmostras(lista);
     setActivaId(lista[0]!.id);
@@ -845,7 +835,6 @@ function AppPage() {
         amostras: usaveis.map((a, i) => ({
           titulo: a.titulo.trim() || `Amostra ${i + 1}`,
           texto: a.texto.trim(),
-          resumo: a.resumo,
         })),
       });
 
@@ -1335,7 +1324,7 @@ function AppPage() {
 
           <div>
             <h1 className="text-xl font-semibold text-primary-foreground">
-              DermaVoz
+              DermOpat Macroscopia
             </h1>
 
             <p className="text-sm text-primary-foreground/75">
@@ -1373,11 +1362,6 @@ function AppPage() {
               onAjudaChange={setAjudaVoz}
               aGravar={aGravar}
               vozSuspensa={vozSuspensa}
-              perguntaResumo={
-                campoResumo
-                  ? `${PERGUNTAS_RESUMO[campoResumo].pergunta} (${PERGUNTAS_RESUMO[campoResumo].exemplos})`
-                  : null
-              }
               sugestoes={sugestoes}
               onSugestao={(c) => {
                 setSugestoes([]);
@@ -1643,7 +1627,6 @@ function AppPage() {
               </div>
 
               <ListaAmostras
-              campoResumoActivo={campoResumo}
                 amostras={amostras}
                 activaId={amostraActiva.id}
                 onActivar={setActivaId}
@@ -1652,9 +1635,6 @@ function AppPage() {
                 }
                 onTextoChange={(id, t) =>
                   actualizarAmostra(id, { texto: t })
-                }
-                onResumoChange={(id, resumo) =>
-                  actualizarAmostra(id, { resumo })
                 }
                 onAdicionar={adicionarAmostra}
                 onRemover={removerAmostra}

@@ -55,7 +55,7 @@ export const TEMPLATES: {
 export type AmostraDocx = {
   titulo: string;
   texto: string;
-  resumo: ResumoDocx;
+  resumo?: ResumoDocx;
 };
 
 export type RelatorioDocx = {
@@ -316,34 +316,6 @@ export async function gerarRelatorioDocx({
         ),
     );
 
-    const campos: [string, string][] = [
-      ["N.º de fragmentos", String(amostra.resumo.fragmentos)],
-      [
-        rotuloBlocos(amostra.resumo.blocos),
-        intervaloBlocos(primeiroBloco, amostra.resumo.blocos),
-      ],
-      ["Seccionado", amostra.resumo.seccionado ? "Sim" : "Não"],
-      [
-        "Inclusão",
-        amostra.resumo.inclusao === "total" ? "Total" : "Com reserva",
-      ],
-    ];
-
-    paragrafos.push(
-      new Paragraph({
-        spacing: { before: 240, after: 80 },
-        children: [
-          new TextRun({
-            text: varias ? "Resumo técnico da amostra" : "Resumo técnico",
-            bold: true,
-            size: 20,
-            font: "Century Gothic",
-          }),
-        ],
-      }),
-      tabelaResumo(campos, varias ? 1 : 2),
-    );
-
     return paragrafos;
 
   };
@@ -478,37 +450,7 @@ export async function gerarRelatorioDocx({
               ]
             : []),
 
-          ...lista.flatMap((amostra, indice) => {
-            const primeiro =
-              lista
-                .slice(0, indice)
-                .reduce((t, a) => t + Math.max(1, a.resumo.blocos), 0) + 1;
-
-            return corpoAmostra(amostra, indice, primeiro);
-          }),
-
-          new Paragraph({
-            spacing: { before: 360, after: 80 },
-            children: [
-              new TextRun({
-                text:
-                  lista.length > 1
-                    ? "Códigos de facturação"
-                    : "Código de facturação",
-                bold: true,
-                size: 26,
-                font: "Century Gothic",
-              }),
-            ],
-          }),
-          tabelaFaturacao(
-            lista.map((amostra, indice): [string, string] => [
-              varias
-                ? amostra.titulo.trim() || `Amostra ${indice + 1}`
-                : "Código",
-              amostra.resumo.codigoFaturacao,
-            ]),
-          ),
+          ...lista.map((amostra, indice) => corpoAmostra(amostra, indice, 0)),
         ],
       },
     ],

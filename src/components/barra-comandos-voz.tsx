@@ -17,8 +17,6 @@ type Props = {
   aGravar?: boolean;
   /** Escuta de comandos suspensa (parar só pelo botão). */
   vozSuspensa?: boolean;
-  /** Pergunta actual do modo guiado do resumo técnico. */
-  perguntaResumo?: string | null;
   /** Sugestões quando um comando não é reconhecido. */
   sugestoes?: SugestaoComando[];
   /** Chamado quando o utilizador escolhe uma sugestão. */
@@ -37,7 +35,6 @@ export function BarraComandosVoz({
   onAjudaChange,
   aGravar = false,
   vozSuspensa = false,
-  perguntaResumo = null,
   sugestoes = [],
   onSugestao,
 }: Props) {
@@ -106,16 +103,7 @@ export function BarraComandosVoz({
                 : "Comandos desligados"}
           </div>
 
-          {perguntaResumo && (
-            <p className="rounded-md border border-clinical/40 bg-clinical/10 px-3 py-2 text-sm text-foreground">
-              Resumo técnico — {perguntaResumo} Diga{" "}
-              <strong>&quot;saltar&quot;</strong>,{" "}
-              <strong>&quot;voltar&quot;</strong> ou{" "}
-              <strong>&quot;sair&quot;</strong>.
-            </p>
-          )}
-
-          {activo && !aGravar && !perguntaResumo && ultima && (
+          {activo && !aGravar && ultima && (
             <p className="truncate rounded-md border border-border bg-secondary/50 px-3 py-2 text-xs text-muted-foreground">
               Ouvido: {ultima}
             </p>

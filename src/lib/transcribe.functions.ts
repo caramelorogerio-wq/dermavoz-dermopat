@@ -46,6 +46,7 @@ export const transcribeAudio = createServerFn({ method: "POST" })
       body: JSON.stringify({
         audioBase64: data.audioBase64,
         format: data.format,
+        ...(data.pistas ? { pistas: data.pistas } : {}),
       }),
     });
 
