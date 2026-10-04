@@ -442,8 +442,6 @@ const FRASES_COMANDO: { frase: string; comando: Comando }[] = [
   { frase: "limpar tudo", comando: { tipo: "novo-relatorio" } },
   { frase: "terminar sessão", comando: { tipo: "sair" } },
   { frase: "sair", comando: { tipo: "sair" } },
-  { frase: "resumo técnico", comando: { tipo: "resumo-guiado" } },
-  { frase: "preencher resumo", comando: { tipo: "resumo-guiado" } },
   { frase: "ajuda", comando: { tipo: "ajuda" } },
   { frase: "comandos", comando: { tipo: "ajuda" } },
   { frase: "confirmar", comando: { tipo: "confirmar" } },
@@ -533,12 +531,6 @@ export function interpretarComando(texto: string): Comando | null {
   if (/^(terminar sessao|sair|fechar sessao|logout)$/.test(t))
     return { tipo: "sair" };
 
-  if (/^(resumo|resumo tecnico|preencher resumo|preencher resumo tecnico)$/.test(t))
-    return { tipo: "resumo-guiado" };
-
-  const atalho = lerAtalhoResumo(t);
-  if (atalho) return { tipo: "resumo", resumo: atalho };
-
   return null;
 }
 
@@ -560,16 +552,6 @@ export const LISTA_COMANDOS: { dizer: string; faz: string }[] = [
   { dizer: "App, amostra dois", faz: "Muda para essa amostra" },
   { dizer: "App, apagar amostra", faz: "Remove a amostra activa (confirmar)" },
   { dizer: "App, separar amostras", faz: "Separa o ditado em amostras" },
-  {
-    dizer: "App, resumo técnico",
-    faz: "Entra no quadro e pergunta campo a campo",
-  },
-  {
-    dizer: "3 fragmentos · 2 blocos · seccionado · total · 31077",
-    faz: "Respostas curtas dentro do modo guiado (sem dizer “App”)",
-  },
-  { dizer: "saltar / voltar / repetir / sair", faz: "Navegar no modo guiado" },
-  { dizer: "App, 3 fragmentos", faz: "Atalho directo, sem modo guiado" },
   { dizer: "App, otimizar", faz: "Otimiza o relatório com IA" },
   { dizer: "App, guardar", faz: "Guarda o relatório" },
   { dizer: "App, exportar", faz: "Gera o ficheiro Word" },

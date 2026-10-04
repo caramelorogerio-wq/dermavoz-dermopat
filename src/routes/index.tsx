@@ -6,13 +6,16 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "DermaVoz — Ditado clínico e transcrição em pt-PT" },
+      { title: "DermOpat Macroscopia — Ditado clínico e transcrição em pt-PT" },
       {
         name: "description",
         content:
           "Grave a voz, obtenha a transcrição em português europeu com terminologia dermatopatológica e otimize o relatório com IA. Cada médico vê apenas os seus dados.",
       },
-      { property: "og:title", content: "DermaVoz — Ditado clínico em português europeu" },
+      {
+        property: "og:title",
+        content: "DermOpat Macroscopia — Ditado clínico em português europeu",
+      },
       {
         property: "og:description",
         content:
@@ -33,7 +36,9 @@ function Landing() {
           <span className="flex size-10 items-center justify-center rounded-md bg-clinical text-clinical-foreground">
             <Mic className="size-5" />
           </span>
-          <h1 className="text-xl font-semibold text-primary-foreground">DermaVoz</h1>
+          <h1 className="text-xl font-semibold text-primary-foreground">
+            DermOpat Macroscopia
+          </h1>
           <Link to="/auth" className="ml-auto">
             <Button variant="secondary" size="sm">
               Entrar

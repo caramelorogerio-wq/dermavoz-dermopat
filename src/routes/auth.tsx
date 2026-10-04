@@ -12,13 +12,13 @@ import { lovable } from "@/integrations/lovable/index";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — DermaVoz" },
+      { title: "Entrar — DermOpat Macroscopia" },
       {
         name: "description",
         content:
-          "Inicie sessão na DermaVoz para ditar, guardar e consultar os seus relatórios clínicos em segurança.",
+          "Inicie sessão na DermOpat Macroscopia para ditar, guardar e consultar os seus relatórios clínicos em segurança.",
       },
-      { property: "og:title", content: "Entrar — DermaVoz" },
+      { property: "og:title", content: "Entrar — DermOpat Macroscopia" },
       {
         property: "og:description",
         content: "Acesso reservado a médicos: cada conta vê apenas os seus próprios relatórios.",
@@ -96,8 +96,8 @@ function AuthPage() {
             <Stethoscope className="size-5" />
           </span>
           <div>
-            <h1 className="text-xl font-semibold text-foreground">DermaVoz</h1>
-            <p className="text-sm text-muted-foreground">Área reservada a médicos</p>
+            <h1 className="text-xl font-semibold text-foreground">DermOpat Macroscopia</h1>
+            <p className="text-sm text-muted-foreground">Área reservada</p>
           </div>
         </div>
 
