@@ -62,7 +62,6 @@ import {
 import {
   transcribeAudio,
   optimizeReport,
-  splitSamples,
 } from "@/lib/transcribe.functions";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -158,7 +157,6 @@ function AppPage() {
 
   const transcrever = useServerFn(transcribeAudio);
   const otimizar = useServerFn(optimizeReport);
-  const separarIA = useServerFn(splitSamples);
   const carregarVocabulario = useServerFn(getVocabularioPessoal);
   const guardarCorreccoes = useServerFn(registarCorreccoes);
 
@@ -566,21 +564,7 @@ function AppPage() {
     setASeparar(true);
 
     try {
-      let blocos: { titulo: string; texto: string }[] = [];
-
-      try {
-        const resultado = await separarIA({
-          data: { texto: conteudo },
-        });
-
-        blocos = resultado.amostras;
-      } catch {
-        blocos = [];
-      }
-
-      if (blocos.length === 0) {
-        blocos = separarAmostrasHeuristica(conteudo);
-      }
+      const blocos = separarAmostrasHeuristica(conteudo);
 
       if (blocos.length <= 1) {
         if (!automatico) {
