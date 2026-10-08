@@ -2,11 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
-import {
-  VOCABULARIO,
-  PROMPT_OTIMIZACAO,
-} from "./ai-clinico";
-
 const inputSchema = z.object({
   audioBase64: z.string().min(10),
   format: z.enum(["wav", "mp3", "webm", "m4a", "ogg", "aac", "flac"]),
