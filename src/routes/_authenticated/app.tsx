@@ -272,6 +272,16 @@ function AppPage() {
     );
   }, [template, instituicao, servico]);
 
+  useEffect(() => {
+    if (!texto.trim()) return;
+    const h = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", h);
+    return () => window.removeEventListener("beforeunload", h);
+  }, [texto]);
+
   const carregar = useCallback(async () => {
     const [r, t, cfg, m] = await Promise.all([
       supabase
