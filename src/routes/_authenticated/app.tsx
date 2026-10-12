@@ -15,6 +15,7 @@ import {
   Power,
   SplitSquareVertical,
   CalendarDays,
+  ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -1347,6 +1348,14 @@ function AppPage() {
             </p>
           </div>
 
+          <span
+            className="ml-auto hidden items-center gap-1.5 rounded-full border border-primary-foreground/30 px-3 py-1 text-xs text-primary-foreground sm:inline-flex"
+            title="Nenhum dado clínico ou identificação de doente é gravado nos servidores. O texto fica apenas na memória do seu computador até exportar ou fechar."
+          >
+            <ShieldCheck className="size-3.5" />
+            Conforme RGPD · Zero retenção
+          </span>
+
           <Button
             variant="secondary"
             size="sm"
@@ -1553,7 +1562,43 @@ function AppPage() {
               )}
             </section>
 
-            {/* RETENÇÃO DE RELATÓRIOS */}
+            {/* PRIVACIDADE & RGPD */}
+            <section className="panel space-y-3 p-6">
+              <div className="flex items-start gap-3">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-clinical/20 text-clinical">
+                  <ShieldCheck className="size-5" />
+                </span>
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">
+                    Privacidade &amp; RGPD
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Sessão efémera — zero retenção de dados clínicos.
+                  </p>
+                </div>
+              </div>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <strong className="text-foreground">Processamento efémero:</strong>{" "}
+                  o áudio é apenas transcrito e otimizado, sem ficar armazenado.
+                </li>
+                <li>
+                  <strong className="text-foreground">Sem histórico no servidor:</strong>{" "}
+                  nenhum relatório ou dado de doente é gravado.
+                </li>
+                <li>
+                  <strong className="text-foreground">Só no seu computador:</strong>{" "}
+                  o texto desaparece ao fechar ou recarregar a página.
+                </li>
+                <li>
+                  <strong className="text-foreground">Vocabulário:</strong>{" "}
+                  guardam-se apenas termos médicos isolados, sem ligação a doentes.
+                </li>
+              </ul>
+              <p className="text-xs text-muted-foreground">
+                O ficheiro Word exportado ou o texto copiado são a única cópia existente.
+              </p>
+            </section>
 
           </div>
 
