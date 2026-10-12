@@ -443,14 +443,14 @@ export async function gerarRelatorioDocx({
             ],
           }),
 
-          ...(varias
+          ...((varias
             ? [
                 linha("N.º da análise", titulo),
                 linha("N.º de amostras", String(lista.length)),
               ]
-            : []),
+            : []).flat() as Paragraph[]),
 
-          ...lista.map((amostra, indice) => corpoAmostra(amostra, indice, 0)),
+          ...(lista.flatMap((amostra, indice) => corpoAmostra(amostra, indice, 0)) as Paragraph[]),
         ],
       },
     ],
