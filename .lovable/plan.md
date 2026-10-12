@@ -1,40 +1,23 @@
-# Página de custos mensais de IA
+# Plano: Apagar relatórios antigos, manter vocabulário aprendido
 
 ## Objetivo
-Uma nova página na app que mostre quanto está a ser gasto em IA (ditado + otimização + separação de amostras): total do mês, custo médio por relatório e custo por minuto de áudio.
+Concluir a migração para o modo zero-retention (RGPD): eliminar os relatórios clínicos guardados na base de dados, mantendo intacto o vocabulário aprendido (termos médicos e correções) da conta.
 
-## Situação atual
-A aplicação chama a IA em três sítios (transcrição de áudio, otimização do relatório e separação de amostras), mas não guarda nenhum registo de utilização. Sem esse registo não é possível mostrar custos históricos — por isso a primeira parte do trabalho é começar a registar cada utilização.
+## O que será feito
 
-## O que vai ser feito
+### 1. Apagar os relatórios guardados
+- Eliminar **todas as linhas** da tabela `relatorios_transcritos` (atualmente 3 relatórios de teste do utilizador).
+- Operação irreversível: os textos destes relatórios não poderão ser recuperados.
+- Executado via ferramenta de dados (não é migração de schema).
 
-### 1. Registo de utilização
-Nova tabela `uso_ia` na base de dados, com uma linha por chamada de IA:
-- médico (dono do registo), data/hora
-- tipo: `transcricao`, `otimizacao` ou `separacao`
-- segundos de áudio (quando aplicável), tokens de entrada/saída (quando aplicável)
-- custo estimado em euros
-- número da análise associada, quando existir
+### 2. Manter o vocabulário aprendido
+- A tabela `termos_aprendidos` **não será tocada** — todos os termos e correções aprendidos continuam disponíveis para a transcrição/otimização.
+- Tabelas `medicos`, `configuracoes_medico` e `pacientes` também ficam intactas.
 
-Segurança: RLS por médico (cada um vê apenas o seu), com GRANTs adequados; a escrita é feita apenas no servidor.
+### 3. Sem alterações de código nem de schema
+- Nenhuma alteração a tabelas, colunas, RLS, grants, triggers ou pg_cron.
+- Nenhuma alteração ao Worker nem às secrets.
+- A aplicação já está em modo zero-retention (sem botão Guardar, sem histórico); esta etapa apenas limpa os dados antigos.
 
-Cada chamada de IA passa a gravar automaticamente uma linha nesta tabela, sem alterar o comportamento do ditado nem da otimização.
-
-### 2. Cálculo do custo
-Tabela de preços em código (por minuto de áudio e por milhão de tokens), aplicada no servidor no momento do registo. Os valores ficam num único ficheiro, fáceis de ajustar.
-
-### 3. Nova página "Custos"
-Acessível a partir da app (área autenticada), mostra:
-- Cartões de topo: total do mês atual, nº de relatórios do mês, custo médio por relatório, custo por minuto de áudio
-- Tabela por mês (últimos 12 meses): minutos de áudio, nº de relatórios, custo de transcrição, custo de texto, total
-- Repartição por tipo de utilização no mês selecionado
-- Nota de que os valores são estimativas baseadas nos preços do modelo
-
-Design em linha com o resto da app (azul clínico/branco, pt-PT).
-
-## Notas técnicas
-- Tabela `uso_ia` criada por migração, com índice em (médico, data) e RLS `auth.uid()`.
-- Registo feito dentro dos handlers em `src/lib/transcribe.functions.ts` e em `src/routes/api/transcrever.ts`, usando o cliente com privilégios apenas no servidor.
-- Duração do áudio calculada no cliente (a partir do blob gravado/ficheiro) e enviada junto com o pedido; se não vier, é estimada pelo tamanho do áudio.
-- Nova rota `src/routes/_authenticated/custos.tsx` com agregação por mês feita numa função de servidor.
-- Histórico anterior a esta alteração não aparece (não foi registado); os totais começam a partir de agora.
+## Nota técnica
+- A função `apagar_relatorios_expirados` e a tabela `relatorios_transcritos` ficam na base de dados mas sem uso — podem ser removidas numa etapa futura, se desejado.
