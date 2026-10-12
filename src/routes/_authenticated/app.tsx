@@ -277,9 +277,9 @@ function AppPage() {
       supabase
         .from("relatorios_transcritos")
         .select(
-          "id, titulo, texto, created_at, updated_at, expira_em, paciente_id, fragmentos, blocos, seccionado, inclusao, codigo_faturacao",
+          "id, titulo, texto, created_at, updated_at, expira_em, paciente_id, fragmentos, blocos, seccionado, inclusao, codigo_faturacao, amostras",
         )
-        .order("created_at", { ascending: false }),
+        .limit(0),
 
       supabase
         .from("termos_aprendidos")
@@ -659,83 +659,11 @@ function AppPage() {
 
 
 
+  // Zero-retention: os relatórios não são guardados no servidor (RGPD).
   const guardar = async () => {
-    if (!texto.trim()) {
-      toast.error(
-        "Não há texto para guardar.",
-      );
-      return;
-    }
-
-    const { data: sessao } =
-      await supabase.auth.getUser();
-
-    if (!sessao.user) {
-      return;
-    }
-
-    const agora = new Date().toISOString();
-
-    const { error } =
-      await supabase
-        .from("relatorios_transcritos")
-        .insert({
-          medico_id: sessao.user.id,
-          paciente_id: null,
-
-          titulo:
-            numeroAnalise.trim() ||
-            `Relatório ${new Date().toLocaleDateString(
-              "pt-PT",
-            )}`,
-
-          texto,
-          amostras: amostras.map(({ id, titulo, texto: textoAmostra }) => ({
-            id,
-            titulo,
-            texto: textoAmostra,
-          })),
-          expira_em: calcularExpiraEm(
-            configRetencao,
-            agora,
-            agora,
-          ),
-        });
-
-
-    if (error) {
-      toast.error(
-        "Não foi possível guardar o relatório.",
-      );
-      return;
-    }
-
-    if (
-      aprendizagem &&
-      textoOtimizado &&
-      textoOtimizado !== texto
-    ) {
-      try {
-        await guardarCorreccoes({
-          data: {
-            antes: textoOtimizado,
-            depois: texto,
-          },
-        });
-      } catch {
-        // A aprendizagem é auxiliar:
-        // uma falha aqui não impede o arquivo.
-      }
-    }
-
-    toast.success(
-      "Relatório guardado na sua conta.",
+    toast.info(
+      "Os relatórios não são guardados. Exporte ou copie o texto antes de fechar.",
     );
-
-    setTextoOtimizado(null);
-
-    await carregar();
-    await actualizarContexto();
   };
 
   const abrirRelatorio = (r: Relatorio) => {
@@ -1498,94 +1426,6 @@ function AppPage() {
 
             {/* RETENÇÃO DE RELATÓRIOS */}
 
-            <section className="panel space-y-4 p-6">
-              <div className="flex items-start gap-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-clinical/20 text-clinical">
-                  <CalendarDays className="size-5" />
-                </span>
-
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">
-                    Retenção de relatórios
-                  </h2>
-
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Define durante quanto tempo os relatórios permanecem
-                    guardados.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="prazo-dias">
-                    Prazo (dias)
-                  </Label>
-
-                  <Input
-                    id="prazo-dias"
-                    type="number"
-                    min={1}
-                    max={3650}
-                    value={configRetencao.prazo_reter_dias}
-                    onChange={(e) =>
-                      setConfigRetencao((ant) => ({
-                        ...ant,
-                        prazo_reter_dias: Math.max(
-                          1,
-                          Number(e.target.value) || 1,
-                        ),
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="base-prazo">
-                    Contar a partir de
-                  </Label>
-
-                  <Select
-                    value={configRetencao.base_prazo}
-                    onValueChange={(
-                      v: "criacao" | "ultima_edicao",
-                    ) =>
-                      setConfigRetencao((ant) => ({
-                        ...ant,
-                        base_prazo: v,
-                      }))
-                    }
-                  >
-                    <SelectTrigger id="base-prazo">
-                      <SelectValue />
-                    </SelectTrigger>
-
-                    <SelectContent>
-                      <SelectItem value="criacao">
-                        Data de criação
-                      </SelectItem>
-
-                      <SelectItem value="ultima_edicao">
-                        Última edição
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full gap-2"
-                onClick={() =>
-                  guardarConfigRetencao(configRetencao)
-                }
-              >
-                <Save className="size-4" />
-                Guardar definições de retenção
-              </Button>
-            </section>
           </div>
 
           {/* COLUNA DIREITA */}
@@ -1643,14 +1483,6 @@ function AppPage() {
                   Otimizar Relatório com IA
                 </Button>
 
-                <Button
-                  variant="outline"
-                  onClick={guardar}
-                  className="gap-2"
-                >
-                  <Save className="size-4" />
-                  Guardar relatório
-                </Button>
 
                 <Button
                   variant="outline"
@@ -1694,62 +1526,6 @@ function AppPage() {
               </div>
             </section>
 
-
-            <section className="panel p-6">
-              <h2 className="text-lg font-semibold text-foreground">
-                Os meus relatórios
-              </h2>
-
-              <p className="text-sm text-muted-foreground">
-                Visíveis apenas na sua conta.
-              </p>
-
-              <ul className="mt-4 space-y-2">
-                {relatorios.length === 0 && (
-                  <li className="text-sm text-muted-foreground">
-                    Ainda não guardou relatórios.
-                  </li>
-                )}
-
-                {relatorios.map((r) => (
-                  <li
-                    key={r.id}
-                    className="flex items-center gap-3 rounded-md border border-border bg-secondary/50 px-3 py-2"
-                  >
-                    <button
-                      type="button"
-                      className="min-w-0 flex-1 text-left"
-                      onClick={() =>
-                        abrirRelatorio(r)
-                      }
-                    >
-                      <span className="block truncate text-sm font-medium text-foreground">
-                        {r.titulo}
-                      </span>
-
-                      <span className="block text-xs text-muted-foreground">
-                        {new Date(
-                          r.created_at,
-                        ).toLocaleString(
-                          "pt-PT",
-                        )}
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        apagar(r.id)
-                      }
-                      className="text-muted-foreground hover:text-destructive"
-                      aria-label="Apagar relatório"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
           </div>
         </div>
       </main>
