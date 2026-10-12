@@ -734,6 +734,52 @@ function AppPage() {
     );
   };
 
+  /** Aprende as correções manuais feitas após a otimização (só termos, sem dados clínicos). */
+  const aprenderCorreccoes = async () => {
+    if (!aprendizagem || !textoOtimizado || textoOtimizado === texto) return;
+    const antes = textoOtimizado;
+    setTextoOtimizado(texto);
+    try {
+      const r = await guardarCorreccoes({ data: { antes, depois: texto } });
+      if (r.registados > 0) {
+        toast.success(`${r.registados} correção(ões) aprendida(s).`);
+        void carregar();
+        void actualizarContexto();
+      }
+    } catch {
+      /* silencioso */
+    }
+  };
+
+  const [novoTermo, setNovoTermo] = useState("");
+  const [novoDe, setNovoDe] = useState("");
+
+  const adicionarTermo = async () => {
+    const termo = novoTermo.trim();
+    const de = novoDe.trim();
+    if (!termo) return;
+    const { data: sessao } = await supabase.auth.getUser();
+    if (!sessao.user) {
+      toast.error("Sessão expirada. Volte a iniciar sessão.");
+      return;
+    }
+    const { error } = await supabase.from("termos_aprendidos").insert({
+      medico_id: sessao.user.id,
+      termo,
+      correcao_de: de || null,
+      origem: "manual",
+    });
+    if (error) {
+      toast.error("Não foi possível adicionar o termo.");
+      return;
+    }
+    setNovoTermo("");
+    setNovoDe("");
+    toast.success("Termo adicionado ao vocabulário.");
+    void carregar();
+    void actualizarContexto();
+  };
+
   const exportar = async () => {
     if (!texto.trim()) {
       toast.error(
@@ -741,6 +787,9 @@ function AppPage() {
       );
       return;
     }
+
+    void aprenderCorreccoes();
+
 
     try {
       const { gerarRelatorioDocx } = await import(
@@ -786,6 +835,9 @@ function AppPage() {
     if (!texto.trim()) {
       return;
     }
+
+    void aprenderCorreccoes();
+
 
     await navigator.clipboard.writeText(
       texto,
@@ -1410,6 +1462,32 @@ function AppPage() {
                     : "Ligar"}
                 </Button>
               </div>
+
+              {aprendizagem && (
+                <form
+                  className="space-y-2 rounded-md border border-border p-3"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    void adicionarTermo();
+                  }}
+                >
+                  <Input
+                    value={novoTermo}
+                    onChange={(e) => setNovoTermo(e.target.value)}
+                    placeholder="Termo correto (ex.: queratoacantoma)"
+                    aria-label="Termo correto"
+                  />
+                  <Input
+                    value={novoDe}
+                    onChange={(e) => setNovoDe(e.target.value)}
+                    placeholder="Quando ouvir… (opcional)"
+                    aria-label="Quando ouvir"
+                  />
+                  <Button type="submit" size="sm" className="w-full" disabled={!novoTermo.trim()}>
+                    + Adicionar termo
+                  </Button>
+                </form>
+              )}
 
               {aprendizagem ? (
                 termos.length === 0 ? (
