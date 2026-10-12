@@ -1359,7 +1359,7 @@ function AppPage() {
           <Button
             variant="secondary"
             size="sm"
-            className="ml-auto gap-2"
+            className="ml-auto gap-2 sm:ml-0"
             onClick={sair}
           >
             <LogOut className="size-4" />
