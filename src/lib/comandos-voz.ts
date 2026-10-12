@@ -43,6 +43,21 @@ export const COMANDOS_DESTRUTIVOS: ReadonlySet<Comando["tipo"]> = new Set([
   "sair",
 ]);
 
+/**
+ * Comandos inequívocos e não destrutivos: executam logo que ouvidos
+ * (sem esperar pela pausa) e são aceites sem "App" fora da gravação.
+ */
+export const COMANDOS_IMEDIATOS: ReadonlySet<Comando["tipo"]> = new Set([
+  "iniciar-gravacao",
+  "parar-gravacao",
+  "nova-amostra",
+  "separar",
+  "otimizar",
+  "exportar",
+  "copiar",
+  "ajuda",
+]);
+
 export const PALAVRA_ACTIVACAO = "App";
 
 const NUMEROS: Record<string, number> = {
@@ -172,18 +187,26 @@ export const normalizar = (frase: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
+// Ordenadas da mais longa para a mais curta, para "apps" não ser lido como "ap".
 const VARIANTES_ACTIVACAO = [
-  "app",
-  "ap",
-  "apo",
-  "apps",
-  "dermavoz",
   "derma voz",
   "derma vos",
+  "derma boz",
+  "dermavoz",
   "dermavos",
   "dermabos",
-  "derma boz",
-];
+  "aplicacao",
+  "app",
+  "apps",
+  "apo",
+  "ape",
+  "api",
+  "hap",
+  "epa",
+  "ap",
+  "up",
+  "ep",
+].sort((a, b) => b.length - a.length);
 
 /** Devolve o texto do comando quando a frase começa pela palavra de activação. */
 export function extrairComando(frase: string): string | null {
@@ -204,7 +227,7 @@ const numeroDe = (palavra: string | undefined): number | undefined => {
 /**
  * Converte a leitura soletrada de um código em texto.
  *
- * "cê vinte e seis agá zero zero zero zero" → "C26H0000"
+ * "á vinte e cinco zero zero um"            → "A25001"
  * "dê eme pê traço zero zero um"            → "DMP-001"
  */
 function juntarCodigo(texto: string): string {
@@ -500,10 +523,17 @@ export function interpretarComando(texto: string): Comando | null {
   if (/^(parar|para|terminar|termina|stop)( gravacao| de gravar| a gravacao)?$/.test(t))
     return { tipo: "parar-gravacao" };
 
-  if (/^(nova amostra|adicionar amostra|proxima amostra)$/.test(t))
+  if (/^(nova amostra|adicionar amostra|proxima amostra|mais uma amostra|outra amostra|amostra seguinte|amostra nova|proxima)$/.test(t))
     return { tipo: "nova-amostra" };
 
-  const irAmostra = t.match(/^(?:ir para |abrir |seleccionar |selecionar )?amostra (\d+|[a-z]+)$/);
+  const ORDINAIS: Record<string, number> = {
+    primeira: 1, segunda: 2, terceira: 3, quarta: 4, quinta: 5,
+    sexta: 6, setima: 7, oitava: 8, nona: 9, decima: 10,
+  };
+  const ordinal = t.match(/^(?:ir para |passa para |passar para |passa a |abrir )?(?:a )?(primeira|segunda|terceira|quarta|quinta|sexta|setima|oitava|nona|decima) amostra$/);
+  if (ordinal?.[1]) return { tipo: "ir-amostra", indice: ORDINAIS[ordinal[1]]! };
+
+  const irAmostra = t.match(/^(?:ir para |passa para |passar para |passa a |abrir |seleccionar |selecionar )?(?:a )?amostra (?:numero )?(\d+|[a-z]+)$/);
   const indice = numeroDe(irAmostra?.[1]);
   if (indice !== undefined && indice >= 1)
     return { tipo: "ir-amostra", indice };
@@ -511,19 +541,19 @@ export function interpretarComando(texto: string): Comando | null {
   if (/^(apagar|remover|eliminar) (a )?amostra$/.test(t))
     return { tipo: "apagar-amostra" };
 
-  if (/^(separar amostras|separar|dividir amostras)$/.test(t))
+  if (/^(separar amostras|separar|dividir amostras|dividir)$/.test(t))
     return { tipo: "separar" };
 
-  if (/^(otimizar|optimizar|otimiza|otimizar relatorio|otimizar com ia|optimizar com ia)$/.test(t))
+  if (/^(otimizar|optimizar|otimiza|optimiza|otimizar relatorio|optimizar relatorio|otimizar texto|otimizar com ia|optimizar com ia|rever texto)$/.test(t))
     return { tipo: "otimizar" };
 
   if (/^(guardar|guarda|gravar relatorio|guardar relatorio)$/.test(t))
     return { tipo: "guardar" };
 
-  if (/^(exportar|exporta|exportar word|exportar documento|exportar para word)$/.test(t))
+  if (/^(exportar|exporta|exportar word|exportar documento|exportar para word|gerar word|gerar documento|descarregar word|descarregar documento|fazer word)$/.test(t))
     return { tipo: "exportar" };
 
-  if (/^(copiar|copia|copiar texto)$/.test(t)) return { tipo: "copiar" };
+  if (/^(copiar|copia|copiar texto|copiar tudo|copia tudo)$/.test(t)) return { tipo: "copiar" };
 
   if (/^(novo relatorio|limpar|limpa|apagar tudo)$/.test(t))
     return { tipo: "novo-relatorio" };
@@ -536,14 +566,10 @@ export function interpretarComando(texto: string): Comando | null {
 
 /** Lista mostrada no diálogo de ajuda. */
 export const LISTA_COMANDOS: { dizer: string; faz: string }[] = [
-  { dizer: "App, análise C26H0000", faz: "Preenche o n.º da análise" },
-  {
-    dizer: "App, análise cê vinte e seis agá zero zero zero zero",
-    faz: "Mesmo código, ditado letra a letra (C26H0000)",
-  },
+  { dizer: "App, análise <número>", faz: "Preenche o n.º da análise" },
   {
     dizer: "App, análise dê eme pê traço zero zero um",
-    faz: "Códigos com traço ou barra (DMP-001)",
+    faz: "Códigos ditados letra a letra, com traço ou barra",
   },
 
   { dizer: "App, iniciar gravação", faz: "Começa a gravar" },

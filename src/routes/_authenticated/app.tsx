@@ -37,6 +37,7 @@ import {
   PERGUNTAS_RESUMO,
   extrairComando,
   ehParagemDirecta,
+  COMANDOS_IMEDIATOS,
   interpretarComando,
   interpretarRespostaResumo,
   sugerirComandos,
@@ -866,6 +867,7 @@ function AppPage() {
 
   const [sugestoes, setSugestoes] = useState<SugestaoComando[]>([]);
   const ultimaFraseRef = useRef("");
+  const interimFeitoRef = useRef(false);
   const falhasSeguidasRef = useRef(0);
 
   const accoesRef = useRef({
@@ -1050,7 +1052,33 @@ function AppPage() {
 
   const tratarFrase = useCallback(
     ({ transcript, isFinal }: { transcript: string; isFinal: boolean }) => {
-      if (!isFinal) return;
+      // Disparo imediato: comandos simples e inequívocos executam logo no
+      // resultado intermédio, sem esperar pela pausa do navegador.
+      if (!isFinal) {
+        if (interimFeitoRef.current || campoResumoRef.current) return;
+        if (aGravarRef.current) {
+          if (ehParagemDirecta(transcript)) {
+            interimFeitoRef.current = true;
+            executar({ tipo: "parar-gravacao" });
+          }
+          return;
+        }
+        const corpoI = extrairComando(transcript);
+        if (corpoI === null) return;
+        const cI = interpretarComando(corpoI);
+        if (cI && COMANDOS_IMEDIATOS.has(cI.tipo)) {
+          interimFeitoRef.current = true;
+          setSugestoes([]);
+          falhasSeguidasRef.current = 0;
+          executar(cI);
+        }
+        return;
+      }
+
+      if (interimFeitoRef.current) {
+        interimFeitoRef.current = false;
+        return;
+      }
 
       ultimaFraseRef.current = transcript;
 
@@ -1128,7 +1156,20 @@ function AppPage() {
         return;
       }
 
-      if (corpo === null) return; // ditado normal
+      if (corpo === null) {
+        // Fora da gravação, comandos directos sem "App" (só não destrutivos).
+        if (aGravarRef.current) return; // ditado normal
+        const directo = interpretarComando(transcript);
+        if (
+          directo &&
+          COMANDOS_IMEDIATOS.has(directo.tipo)
+        ) {
+          falhasSeguidasRef.current = 0;
+          setSugestoes([]);
+          executar(directo);
+        }
+        return;
+      }
 
       const comando = interpretarComando(corpo);
       if (!comando) {
