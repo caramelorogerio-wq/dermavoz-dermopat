@@ -63,6 +63,9 @@ import {
 } from "@/lib/amostras";
 import {
   transcribeAudio,
+} from "@/lib/transcribe.functions";
+import { normalizarDitado } from "@/lib/normalizar-ditado";
+import {
   optimizeReport,
 } from "@/lib/transcribe.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -517,12 +520,14 @@ function AppPage() {
       }
 
       // Remove a palavra de paragem final ("parar", "stop"…) do ditado.
-      const textoDitado = resultado.text
-        .replace(
-          /[\s,.;:-]*\b(?:app[,\s]+)?(?:parar|para|p[aá]ra|stop|terminar|termina|fim d[eo] ditado)\s*[.!?]*\s*$/i,
-          "",
-        )
-        .trim() || resultado.text;
+      const textoDitado = normalizarDitado(
+        resultado.text
+          .replace(
+            /[\s,.;:-]*\b(?:app[,\s]+)?(?:parar|para|p[aá]ra|stop|terminar|termina|fim d[eo] ditado)\s*[.!?]*\s*$/i,
+            "",
+          )
+          .trim() || resultado.text,
+      );
 
       // A amostra fixada quando a gravação começou tem prioridade.
       const alvoId = alvoGravacaoRef.current ?? amostraActiva.id;
