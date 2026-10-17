@@ -3,7 +3,6 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { mimeFor, VOCABULARIO, PROMPT_OTIMIZACAO, gatewayError } from "@/lib/ai-clinico";
 
 const MAX_BASE64 = 30 * 1024 * 1024; // ~22 MB de áudio
 
@@ -62,12 +61,6 @@ async function chamarWorker(caminho: string, body: unknown): Promise<string> {
   return (json.text ?? "").trim();
 }
 
-function chaveGateway(): string {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) throw new Error("O gateway não está configurado.");
-  return apiKey;
-}
-
 export const compararTranscricao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) =>
@@ -92,31 +85,10 @@ export const compararTranscricao = createServerFn({ method: "POST" })
       }),
     );
 
-    const gateway = cronometrar(async () => {
-      const apiKey = chaveGateway();
-      const bytes = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
-      const form = new FormData();
-      form.append("model", "openai/gpt-4o-mini-transcribe");
-      form.append(
-        "file",
-        new Blob([bytes], { type: mimeFor[data.format] ?? "audio/webm" }),
-        `gravacao.${data.format}`,
-      );
-      form.append("language", "pt");
-      form.append(
-        "prompt",
-        data.pistas
-          ? `${VOCABULARIO}\n\nVocabulário pessoal do médico (pistas de grafia; não acrescentar ao ditado): ${data.pistas}`
-          : VOCABULARIO,
-      );
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}` },
-        body: form,
-      });
-      if (!response.ok) throw new Error(await gatewayError(response));
-      const json = (await response.json()) as { text?: string };
-      return (json.text ?? "").trim();
+    const gateway = Promise.resolve({
+      text: null,
+      error: "A comparação com o gateway Lovable não está disponível na versão independente.",
+      ms: 0,
     });
 
     const [w, g] = await Promise.all([worker, gateway]);
@@ -131,27 +103,10 @@ export const compararOtimizacao = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<ResultadoComparacao> => {
     const worker = cronometrar(() => chamarWorker("/api/otimizar", { texto: data.texto }));
 
-    const gateway = cronometrar(async () => {
-      const apiKey = chaveGateway();
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: PROMPT_OTIMIZACAO },
-            { role: "user", content: data.texto },
-          ],
-        }),
-      });
-      if (!response.ok) throw new Error(await gatewayError(response));
-      const json = (await response.json()) as {
-        choices?: { message?: { content?: string } }[];
-      };
-      return (json.choices?.[0]?.message?.content ?? "").trim();
+    const gateway = Promise.resolve({
+      text: null,
+      error: "A comparação com o gateway Lovable não está disponível na versão independente.",
+      ms: 0,
     });
 
     const [w, g] = await Promise.all([worker, gateway]);

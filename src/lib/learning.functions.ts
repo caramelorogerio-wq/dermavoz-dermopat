@@ -8,7 +8,6 @@ export type ContextoAprendizagem = {
   activa: boolean;
   pistas: string;
   correccoes: Array<{ de: string; para: string }>;
-  exemplos: string[];
 };
 
 export const getVocabularioPessoal = createServerFn({ method: "POST" })
@@ -16,13 +15,8 @@ export const getVocabularioPessoal = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<ContextoAprendizagem> => {
     const { supabase, userId } = context;
 
-    const [medico, relatorios, termos] = await Promise.all([
+    const [medico, termos] = await Promise.all([
       supabase.from("medicos").select("aprendizagem_activa").eq("id", userId).maybeSingle(),
-      supabase
-        .from("relatorios_transcritos")
-        .select("texto")
-        .order("created_at", { ascending: false })
-        .limit(20),
       supabase
         .from("termos_aprendidos")
         .select("termo, correcao_de")
@@ -32,9 +26,8 @@ export const getVocabularioPessoal = createServerFn({ method: "POST" })
     ]);
 
     const activa = medico.data?.aprendizagem_activa !== false;
-    if (!activa) return { activa: false, pistas: "", correccoes: [], exemplos: [] };
+    if (!activa) return { activa: false, pistas: "", correccoes: [] };
 
-    const textos = (relatorios.data ?? []).map((r) => r.texto).filter(Boolean);
     const aprendidos = termos.data ?? [];
 
     const correccoes = aprendidos
@@ -45,14 +38,12 @@ export const getVocabularioPessoal = createServerFn({ method: "POST" })
     const pistas = limitarPistas([
       ...manuais,
       ...correccoes.map((c) => c.para),
-      ...extrairTermos(textos),
     ]);
 
     return {
       activa: true,
       pistas,
       correccoes: correccoes.slice(0, 40),
-      exemplos: textos.slice(0, 3).map((t) => t.slice(0, 1200)),
     };
   });
 

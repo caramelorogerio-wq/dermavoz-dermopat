@@ -177,20 +177,12 @@ function AppPage() {
 
   const [numeroAnalise, setNumeroAnalise] = useState("");
 
-  const [relatorios, setRelatorios] = useState<Relatorio[]>([]);
-
   const [contexto, setContexto] =
     useState<ContextoAprendizagem | null>(null);
 
   const [termos, setTermos] = useState<Termo[]>([]);
 
   const [aprendizagem, setAprendizagem] = useState(true);
-
-  const [configRetencao, setConfigRetencao] =
-    useState<ConfiguracaoRetencao>({
-      prazo_reter_dias: 90,
-      base_prazo: "ultima_edicao",
-    });
 
   const [textoOtimizado, setTextoOtimizado] =
     useState<string | null>(null);
@@ -288,14 +280,7 @@ function AppPage() {
   }, [texto]);
 
   const carregar = useCallback(async () => {
-    const [r, t, cfg, m] = await Promise.all([
-      supabase
-        .from("relatorios_transcritos")
-        .select(
-          "id, titulo, texto, created_at, updated_at, expira_em, paciente_id, fragmentos, blocos, seccionado, inclusao, codigo_faturacao, amostras",
-        )
-        .limit(0),
-
+    const [t, m] = await Promise.all([
       supabase
         .from("termos_aprendidos")
         .select(
@@ -304,30 +289,11 @@ function AppPage() {
         .eq("activo", true)
         .order("ocorrencias", { ascending: false }),
 
-      supabase
-        .from("configuracoes_medico")
-        .select("prazo_reter_dias, base_prazo")
-        .maybeSingle(),
-
       supabase.auth.getUser(),
     ]);
 
-
-    if (r.data) {
-      setRelatorios(r.data as Relatorio[]);
-    }
-
     if (t.data) {
       setTermos(t.data);
-    }
-
-    if (cfg.data) {
-      setConfigRetencao({
-        prazo_reter_dias: cfg.data.prazo_reter_dias,
-        base_prazo: cfg.data.base_prazo as
-          | "criacao"
-          | "ultima_edicao",
-      });
     }
 
     if (m.data.user) {
@@ -394,7 +360,6 @@ function AppPage() {
         activa: false,
         pistas: "",
         correccoes: [],
-        exemplos: [],
       });
     } else {
       await actualizarContexto();
@@ -405,41 +370,6 @@ function AppPage() {
         ? "Vocabulário aprendido ativado."
         : "Vocabulário aprendido desligado.",
     );
-  };
-
-  const guardarConfigRetencao = async (
-    novo: ConfiguracaoRetencao,
-  ) => {
-    const { data: sessao } =
-      await supabase.auth.getUser();
-
-    if (!sessao.user) {
-      toast.error(
-        "Sessão expirada. Volte a iniciar sessão.",
-      );
-      return;
-    }
-
-    const { error } = await supabase
-      .from("configuracoes_medico")
-      .upsert(
-        {
-          medico_id: sessao.user.id,
-          prazo_reter_dias: novo.prazo_reter_dias,
-          base_prazo: novo.base_prazo,
-        },
-        { onConflict: "medico_id" },
-      );
-
-    if (error) {
-      toast.error(
-        "Não foi possível guardar as definições de retenção.",
-      );
-      return;
-    }
-
-    setConfigRetencao(novo);
-    toast.success("Definições de retenção guardadas.");
   };
 
   const removerTermo = async (termo: Termo) => {
@@ -643,9 +573,6 @@ function AppPage() {
             data: {
               texto: a.texto,
 
-              exemplos:
-                contexto?.exemplos ?? [],
-
               correccoes:
                 contexto?.correccoes ?? [],
             },
@@ -680,63 +607,6 @@ function AppPage() {
   const guardar = async () => {
     toast.info(
       "Os relatórios não são guardados. Exporte ou copie o texto antes de fechar.",
-    );
-  };
-
-  const abrirRelatorio = (r: Relatorio) => {
-    const guardadas = Array.isArray(r.amostras)
-      ? (r.amostras as Amostra[]).filter(
-          (a) => a && typeof a.texto === "string",
-        )
-      : [];
-
-    const lista: Amostra[] =
-      guardadas.length > 0
-        ? guardadas.map((a) => ({
-            id: a.id || novaAmostra().id,
-            titulo: a.titulo ?? "",
-            texto: a.texto ?? "",
-            resumo: { ...resumoVazio(), ...(a.resumo ?? {}) },
-          }))
-        : [novaAmostra("", r.texto)];
-
-    setAmostras(lista);
-    setActivaId(lista[0]!.id);
-    setNumeroAnalise(r.titulo);
-
-
-    setTextoOtimizado(null);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-
-    toast.success(
-      "Relatório carregado.",
-    );
-  };
-
-  const apagar = async (
-    id: string,
-  ) => {
-    const { error } =
-      await supabase
-        .from("relatorios_transcritos")
-        .delete()
-        .eq("id", id);
-
-    if (error) {
-      toast.error(
-        "Não foi possível apagar.",
-      );
-      return;
-    }
-
-    setRelatorios((a) =>
-      a.filter(
-        (r) => r.id !== id,
-      ),
     );
   };
 

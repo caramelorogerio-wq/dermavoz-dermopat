@@ -64,7 +64,6 @@ export const optimizeReport = createServerFn({ method: "POST" })
     z
       .object({
         texto: z.string().min(1),
-        exemplos: z.array(z.string()).max(3).optional(),
         correccoes: z
           .array(z.object({ de: z.string(), para: z.string() }))
           .max(40)
@@ -101,11 +100,6 @@ export const optimizeReport = createServerFn({ method: "POST" })
         ? `\n\nCorrecções que este médico costuma fazer (aplica-as quando o contexto o justificar): ${data.correccoes
             .map((c) => `"${c.de}" → "${c.para}"`)
             .join("; ")}.`
-        : "",
-      data.exemplos?.length
-        ? `\n\nExemplos de relatórios anteriores deste médico, apenas como referência de estilo, pontuação e abreviaturas. Não copies conteúdo clínico destes exemplos:\n\n${data.exemplos.join(
-            "\n\n---\n\n",
-          )}`
         : "",
     ]
       .filter(Boolean)
