@@ -39,11 +39,6 @@ function Landing() {
           <h1 className="text-xl font-semibold text-primary-foreground">
             DermOpat Macroscopia
           </h1>
-          <Link to="/auth" className="ml-auto">
-            <Button variant="secondary" size="sm">
-              Entrar
-            </Button>
-          </Link>
         </div>
       </header>
 
