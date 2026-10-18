@@ -1,22 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 const inputSchema = z.object({
   audioBase64: z.string().min(10),
   format: z.enum(["wav", "mp3", "webm", "m4a", "ogg", "aac", "flac"]),
+  accessToken: z.string().min(1),
   pistas: z.string().max(1200).optional(),
 });
 
 export const transcribeAudio = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }) => {
-    const request = getRequest();
-    const authorization = request.headers.get("authorization");
-
-    if (!authorization?.toLowerCase().startsWith("bearer ")) {
-      throw new Error("Sessão não encontrada.");
-    }
+    const authorization = `Bearer ${data.accessToken}`;
 
     const apiUrl =
       process.env["DIGIVOZ_AI_URL"] ??
@@ -64,6 +59,7 @@ export const optimizeReport = createServerFn({ method: "POST" })
     z
       .object({
         texto: z.string().min(1),
+        accessToken: z.string().min(1),
         correccoes: z
           .array(z.object({ de: z.string(), para: z.string() }))
           .max(40)
@@ -72,12 +68,7 @@ export const optimizeReport = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const request = getRequest();
-    const authorization = request.headers.get("authorization");
-
-    if (!authorization?.toLowerCase().startsWith("bearer ")) {
-      throw new Error("Sessão não encontrada.");
-    }
+    const authorization = `Bearer ${data.accessToken}`;
 
     const apiUrl =
       process.env["DIGIVOZ_AI_URL"] ??

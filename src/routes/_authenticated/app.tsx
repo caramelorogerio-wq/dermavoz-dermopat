@@ -565,6 +565,14 @@ function AppPage() {
     setAOtimizar(true);
 
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
+      if (!accessToken) {
+        toast.error("Sessão expirada. Volte a iniciar sessão.");
+        return;
+      }
+
       const revistas = await Promise.all(
         amostras.map(async (a) => {
           if (!a.texto.trim()) return a;
@@ -572,6 +580,7 @@ function AppPage() {
           const resultado = await otimizar({
             data: {
               texto: a.texto,
+              accessToken,
 
               correccoes:
                 contexto?.correccoes ?? [],
