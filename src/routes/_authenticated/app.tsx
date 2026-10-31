@@ -813,6 +813,7 @@ function AppPage() {
         amostras: usaveis.map((a, i) => ({
           titulo: a.titulo.trim() || `Amostra ${i + 1}`,
           texto: a.texto.trim(),
+          resumo: a.resumo,
         })),
       });
 
