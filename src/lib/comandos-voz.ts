@@ -575,7 +575,7 @@ export function interpretarComando(texto: string): Comando | null {
 export const LISTA_COMANDOS: { dizer: string; faz: string }[] = [
   { dizer: "Comando, análise <número>", faz: "Preenche o n.º da análise" },
   {
-    dizer: "App, análise dê eme pê traço zero zero um",
+    dizer: "Comando, análise dê eme pê traço zero zero um",
     faz: "Códigos ditados letra a letra, com traço ou barra",
   },
 

@@ -54,8 +54,8 @@ export function BarraComandosVoz({
           </h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            Diga <strong>&quot;App&quot;</strong> seguido do comando — por
-            exemplo, &quot;App, iniciar gravação&quot;. (&quot;DermaVoz&quot;
+            Diga <strong>&quot;Comando&quot;</strong> seguido da ordem — por
+            exemplo, &quot;Comando, exportar&quot;. Sem gravar, basta dizer &quot;exportar&quot; ou &quot;resumo técnico&quot;. (&quot;App&quot; e &quot;DermaVoz&quot;
             também continua a funcionar.)
           </p>
         </div>
@@ -95,7 +95,7 @@ export function BarraComandosVoz({
             {aGravar
               ? vozSuspensa || !aEscutar
                 ? "A gravar — escuta indisponível: use o botão Parar Gravação ou a tecla Esc"
-                : 'A gravar — diga "parar" (ou "App, parar", ou Esc)'
+                : 'A gravar — diga "parar" (ou "Comando, parar", ou Esc)'
               : activo
                 ? aEscutar
                   ? "À escuta de comandos"
@@ -128,16 +128,16 @@ export function BarraComandosVoz({
                 ))}
               </div>
               <p className="text-xs text-muted-foreground">
-                Diga <strong>&quot;App, repetir&quot;</strong> para tentar de novo,
-                ou <strong>&quot;App, ajuda&quot;</strong> para ver todos os comandos.
+                Diga <strong>&quot;Comando, repetir&quot;</strong> para tentar de novo,
+                ou <strong>&quot;Comando, ajuda&quot;</strong> para ver todos os comandos.
               </p>
             </div>
           )}
 
           {pendente && (
             <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-foreground">
-              {pendente} — diga <strong>&quot;App, confirmar&quot;</strong> ou{" "}
-              <strong>&quot;App, cancelar&quot;</strong>.
+              {pendente} — diga <strong>&quot;Comando, confirmar&quot;</strong> ou{" "}
+              <strong>&quot;Comando, cancelar&quot;</strong>.
             </p>
           )}
 
