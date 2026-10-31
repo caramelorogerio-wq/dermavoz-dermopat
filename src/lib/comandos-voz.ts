@@ -49,6 +49,8 @@ export const COMANDOS_DESTRUTIVOS: ReadonlySet<Comando["tipo"]> = new Set([
  */
 export const COMANDOS_IMEDIATOS: ReadonlySet<Comando["tipo"]> = new Set([
   "iniciar-gravacao",
+  "resumo-guiado",
+  "resumo",
   "parar-gravacao",
   "nova-amostra",
   "separar",
