@@ -158,27 +158,6 @@ export function ResumoTecnico({
           </label>
         </div>
       </div>
-
-      <div className={realce("codigoFaturacao")}>
-        <Label htmlFor={id("codigo-faturacao")}>
-          Código de faturação
-        </Label>
-
-        <select
-          id={id("codigo-faturacao")}
-          value={codigoFaturacao}
-          onChange={(e) =>
-            onCodigoFaturacaoChange(
-              e.target.value as "31057" | "31077",
-            )
-          }
-          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-        >
-          <option value="31057">31057</option>
-
-          <option value="31077">31077</option>
-        </select>
-      </div>
     </section>
   );
 }

@@ -323,7 +323,6 @@ export async function gerarRelatorioDocx({
         [rotuloBlocos(r.blocos), intervaloBlocos(primeiroBloco, r.blocos)],
         ["Seccionado", r.seccionado ? "Sim" : "Não"],
         ["Inclusão", r.inclusao === "total" ? "Total" : "Com reserva"],
-        ["Código", r.codigoFaturacao],
       ];
       paragrafos.push(
         new Paragraph({

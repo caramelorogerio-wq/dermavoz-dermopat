@@ -591,8 +591,6 @@ export const LISTA_COMANDOS: { dizer: string; faz: string }[] = [
 /** Palavras que param a gravação mesmo sem a palavra de activação. */
 export const PALAVRAS_PARAGEM = [
   "parar",
-  "para",
-  "pára",
   "stop",
   "terminar",
   "termina",
