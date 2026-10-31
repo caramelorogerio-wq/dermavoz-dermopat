@@ -1639,6 +1639,10 @@ function AppPage() {
                 onTextoChange={(id, t) =>
                   actualizarAmostra(id, { texto: t })
                 }
+                onResumoChange={(id, resumo) =>
+                  actualizarAmostra(id, { resumo })
+                }
+                campoResumoActivo={campoResumo}
                 onAdicionar={adicionarAmostra}
                 onRemover={removerAmostra}
                 onMover={moverAmostra}

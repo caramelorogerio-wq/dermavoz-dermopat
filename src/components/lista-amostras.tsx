@@ -3,7 +3,11 @@ import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { Amostra } from "@/lib/amostras";
+import {
+  ResumoTecnico,
+  type CampoResumoActivo,
+} from "@/components/resumo-tecnico";
+import type { Amostra, ResumoAmostra } from "@/lib/amostras";
 import { contarPalavras } from "@/lib/amostras";
 
 type Props = {
@@ -12,9 +16,11 @@ type Props = {
   onActivar: (id: string) => void;
   onTituloChange: (id: string, titulo: string) => void;
   onTextoChange: (id: string, texto: string) => void;
+  onResumoChange: (id: string, resumo: ResumoAmostra) => void;
   onAdicionar: () => void;
   onRemover: (id: string) => void;
   onMover: (id: string, direccao: -1 | 1) => void;
+  campoResumoActivo?: CampoResumoActivo;
 };
 
 export function ListaAmostras({
@@ -23,9 +29,11 @@ export function ListaAmostras({
   onActivar,
   onTituloChange,
   onTextoChange,
+  onResumoChange,
   onAdicionar,
   onRemover,
   onMover,
+  campoResumoActivo = null,
 }: Props) {
   return (
     <div className="space-y-4">
@@ -110,6 +118,36 @@ export function ListaAmostras({
               placeholder="O texto transcrito desta amostra aparecerá aqui."
               className="min-h-[220px] resize-none text-sm leading-relaxed"
             />
+
+            <ResumoTecnico
+              idPrefix={amostra.id}
+              compacto
+              campoActivo={activa ? campoResumoActivo : null}
+              fragmentos={amostra.resumo.fragmentos}
+              blocos={amostra.resumo.blocos}
+              seccionado={amostra.resumo.seccionado}
+              inclusao={amostra.resumo.inclusao}
+              codigoFaturacao={amostra.resumo.codigoFaturacao}
+              onFragmentosChange={(v) =>
+                onResumoChange(amostra.id, { ...amostra.resumo, fragmentos: v })
+              }
+              onBlocosChange={(v) =>
+                onResumoChange(amostra.id, { ...amostra.resumo, blocos: v })
+              }
+              onSeccionadoChange={(v) =>
+                onResumoChange(amostra.id, { ...amostra.resumo, seccionado: v })
+              }
+              onInclusaoChange={(v) =>
+                onResumoChange(amostra.id, { ...amostra.resumo, inclusao: v })
+              }
+              onCodigoFaturacaoChange={(v) =>
+                onResumoChange(amostra.id, {
+                  ...amostra.resumo,
+                  codigoFaturacao: v,
+                })
+              }
+            />
+
 
           </section>
         );
