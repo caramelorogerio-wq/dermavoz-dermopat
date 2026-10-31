@@ -979,10 +979,17 @@ function AppPage() {
     const a = accoesRef.current;
 
     switch (c.tipo) {
-      case "analise":
+      case "analise": {
         a.setNumeroAnalise(c.valor);
-        toast.success(`N.º da análise: ${c.valor}`);
+        toast.success(`N.º da análise preenchido: ${c.valor}`);
+        const campo = document.getElementById("numero-analise");
+        if (campo) {
+          campo.scrollIntoView({ behavior: "smooth", block: "center" });
+          campo.classList.add("ring-2", "ring-clinical");
+          window.setTimeout(() => campo.classList.remove("ring-2", "ring-clinical"), 2000);
+        }
         break;
+      }
 
       case "iniciar-gravacao": {
         // Fixa a amostra destino antes de arrancar, e só anuncia
@@ -1221,7 +1228,7 @@ function AppPage() {
         const directo = interpretarComando(transcript);
         if (
           directo &&
-          COMANDOS_IMEDIATOS.has(directo.tipo)
+          (COMANDOS_IMEDIATOS.has(directo.tipo) || directo.tipo === "analise")
         ) {
           falhasSeguidasRef.current = 0;
           setSugestoes([]);

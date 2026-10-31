@@ -594,7 +594,7 @@ export const LISTA_COMANDOS: { dizer: string; faz: string }[] = [
   { dizer: "Comando, terminar sessão", faz: "Sai da conta (confirmar)" },
   { dizer: "Comando, resumo técnico", faz: "Preenche o resumo passo a passo" },
   { dizer: "3 fragmentos · 2 blocos · seccionado · inclusão total", faz: "Atalhos do resumo" },
-  { dizer: "Sem gravar: exportar, otimizar, copiar…", faz: "Funcionam sem dizer «Comando»" },
+  { dizer: "Sem gravar: análise DMP 3057, exportar, otimizar, copiar…", faz: "Funcionam sem dizer «Comando»" },
   { dizer: "Comando, ajuda", faz: "Mostra esta lista" },
 ];
 
