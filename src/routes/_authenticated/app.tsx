@@ -1012,7 +1012,7 @@ function AppPage() {
 
           // Escuta reactivada: o comando de paragem tem de continuar a funcionar.
           setVozSuspensa(false);
-          toast.success("A gravar — diga \"App, parar\" (ou Esc).");
+          toast.success("A gravar — diga \"Comando, parar\" (ou Esc).");
         })();
         break;
       }
@@ -1156,7 +1156,7 @@ function AppPage() {
         if (/^(nao|cancelar|não|nope)$/.test(t)) {
           setSugestoes([]);
           falhasSeguidasRef.current = 0;
-          toast.info("Sugestão ignorada. Diga \"App, ajuda\" para ver os comandos.");
+          toast.info("Sugestão ignorada. Diga \"Comando, ajuda\" para ver os comandos.");
           return;
         }
       }
