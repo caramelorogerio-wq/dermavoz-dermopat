@@ -316,6 +316,31 @@ export async function gerarRelatorioDocx({
         ),
     );
 
+    if (amostra.resumo) {
+      const r = amostra.resumo;
+      const campos: [string, string][] = [
+        ["Fragmentos", String(r.fragmentos)],
+        [rotuloBlocos(r.blocos), intervaloBlocos(primeiroBloco, r.blocos)],
+        ["Seccionado", r.seccionado ? "Sim" : "Não"],
+        ["Inclusão", r.inclusao === "total" ? "Total" : "Com reserva"],
+        ["Código", r.codigoFaturacao],
+      ];
+      paragrafos.push(
+        new Paragraph({
+          spacing: { before: 120, after: 120 },
+          children: campos.flatMap(([rot, val], i) => [
+            new TextRun({
+              text: `${i ? " · " : ""}${rot}: `,
+              bold: true,
+              font: "Century Gothic",
+              size: 20,
+            }),
+            new TextRun({ text: val, font: "Century Gothic", size: 20 }),
+          ]),
+        }),
+      );
+    }
+
     return paragrafos;
 
   };
@@ -450,7 +475,15 @@ export async function gerarRelatorioDocx({
               ]
             : []).flat() as Paragraph[]),
 
-          ...(lista.flatMap((amostra, indice) => corpoAmostra(amostra, indice, 0)) as Paragraph[]),
+          ...(lista.flatMap((amostra, indice) =>
+            corpoAmostra(
+              amostra,
+              indice,
+              lista
+                .slice(0, indice)
+                .reduce((t, a) => t + Math.max(1, a.resumo?.blocos ?? 1), 0) + 1,
+            ),
+          ) as Paragraph[]),
         ],
       },
     ],

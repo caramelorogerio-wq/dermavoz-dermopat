@@ -813,6 +813,7 @@ function AppPage() {
         amostras: usaveis.map((a, i) => ({
           titulo: a.titulo.trim() || `Amostra ${i + 1}`,
           texto: a.texto.trim(),
+          resumo: a.resumo,
         })),
       });
 
@@ -1639,6 +1640,10 @@ function AppPage() {
                 onTextoChange={(id, t) =>
                   actualizarAmostra(id, { texto: t })
                 }
+                onResumoChange={(id, resumo) =>
+                  actualizarAmostra(id, { resumo })
+                }
+                campoResumoActivo={campoResumo}
                 onAdicionar={adicionarAmostra}
                 onRemover={removerAmostra}
                 onMover={moverAmostra}
