@@ -189,6 +189,11 @@ export const normalizar = (frase: string) =>
 
 // Ordenadas da mais longa para a mais curta, para "apps" não ser lido como "ap".
 const VARIANTES_ACTIVACAO = [
+  "comando",
+  "comandos",
+  "comanda",
+  "camando",
+  "com ando",
   "derma voz",
   "derma vos",
   "derma boz",
@@ -326,7 +331,6 @@ export const CAMPOS_RESUMO = [
   "blocos",
   "seccionado",
   "inclusao",
-  "codigoFaturacao",
 ] as const;
 
 export type CampoResumo = (typeof CAMPOS_RESUMO)[number];
@@ -550,8 +554,14 @@ export function interpretarComando(texto: string): Comando | null {
   if (/^(guardar|guarda|gravar relatorio|guardar relatorio)$/.test(t))
     return { tipo: "guardar" };
 
-  if (/^(exportar|exporta|exportar word|exportar documento|exportar para word|gerar word|gerar documento|descarregar word|descarregar documento|fazer word)$/.test(t))
+  if (/^(e?[xsc]?portar?|exporta|esporta|expor|descarregar|descarrega|gerar (o )?(word|documento|ficheiro|relatorio)|fazer (o )?word|passar (para|pra) (o )?word|(exportar|esportar|descarregar) (o |para |pra )?(o )?(word|documento|ficheiro|relatorio))$/.test(t))
     return { tipo: "exportar" };
+
+  if (/^(resumo|resumo tecnico|preencher resumo|fazer resumo|resumo guiado)$/.test(t))
+    return { tipo: "resumo-guiado" };
+
+  const atalho = lerAtalhoResumo(t);
+  if (atalho) return { tipo: "resumo", resumo: atalho };
 
   if (/^(copiar|copia|copiar texto|copiar tudo|copia tudo)$/.test(t)) return { tipo: "copiar" };
 
