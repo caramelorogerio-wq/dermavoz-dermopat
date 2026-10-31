@@ -56,7 +56,7 @@ export function BarraComandosVoz({
           <p className="mt-1 text-sm text-muted-foreground">
             Diga <strong>&quot;Comando&quot;</strong> seguido da ordem — por
             exemplo, &quot;Comando, exportar&quot;. Sem gravar, basta dizer &quot;exportar&quot; ou &quot;resumo técnico&quot;. (&quot;App&quot; e &quot;DermaVoz&quot;
-            também continua a funcionar.)
+            também continuam a funcionar.)
           </p>
         </div>
 
