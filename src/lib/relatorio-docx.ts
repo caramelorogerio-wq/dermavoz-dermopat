@@ -475,7 +475,15 @@ export async function gerarRelatorioDocx({
               ]
             : []).flat() as Paragraph[]),
 
-          ...(lista.flatMap((amostra, indice) => corpoAmostra(amostra, indice, 0)) as Paragraph[]),
+          ...(lista.flatMap((amostra, indice) =>
+            corpoAmostra(
+              amostra,
+              indice,
+              lista
+                .slice(0, indice)
+                .reduce((t, a) => t + Math.max(1, a.resumo?.blocos ?? 1), 0) + 1,
+            ),
+          ) as Paragraph[]),
         ],
       },
     ],
