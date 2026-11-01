@@ -21,6 +21,8 @@ type Props = {
   onRemover: (id: string) => void;
   onMover: (id: string, direccao: -1 | 1) => void;
   campoResumoActivo?: CampoResumoActivo;
+  numeroAnalise?: string;
+  onNumeroAnaliseChange?: (valor: string) => void;
 };
 
 export function ListaAmostras({
@@ -28,6 +30,8 @@ export function ListaAmostras({
   activaId,
   onActivar,
   onTituloChange,
+  numeroAnalise,
+  onNumeroAnaliseChange,
   onTextoChange,
   onResumoChange,
   onAdicionar,
@@ -56,17 +60,28 @@ export function ListaAmostras({
                   htmlFor={`titulo-${amostra.id}`}
                   className="text-sm font-medium text-foreground"
                 >
-                  Título da amostra {indice + 1}
+                  {indice === 0 && onNumeroAnaliseChange
+                    ? "Número da análise"
+                    : `Título da amostra ${indice + 1}`}
                 </label>
 
-                <Input
-                  id={`titulo-${amostra.id}`}
-                  value={amostra.titulo}
-                  onChange={(e) =>
-                    onTituloChange(amostra.id, e.target.value)
-                  }
-                  placeholder={`Amostra ${indice + 1}`}
-                />
+                {indice === 0 && onNumeroAnaliseChange ? (
+                  <Input
+                    id={`titulo-${amostra.id}`}
+                    value={numeroAnalise ?? ""}
+                    onChange={(e) => onNumeroAnaliseChange(e.target.value)}
+                    placeholder="Ex.: DMP 3457"
+                  />
+                ) : (
+                  <Input
+                    id={`titulo-${amostra.id}`}
+                    value={amostra.titulo}
+                    onChange={(e) =>
+                      onTituloChange(amostra.id, e.target.value)
+                    }
+                    placeholder={`Amostra ${indice + 1}`}
+                  />
+                )}
               </div>
 
               <div className="flex items-center gap-1">
