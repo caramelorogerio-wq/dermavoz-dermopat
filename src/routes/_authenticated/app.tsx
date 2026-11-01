@@ -1639,6 +1639,8 @@ function AppPage() {
 
               <ListaAmostras
                 amostras={amostras}
+                numeroAnalise={numeroAnalise}
+                onNumeroAnaliseChange={setNumeroAnalise}
                 activaId={amostraActiva.id}
                 onActivar={setActivaId}
                 onTituloChange={(id, titulo) =>
