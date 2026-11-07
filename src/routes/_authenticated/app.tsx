@@ -831,6 +831,15 @@ function AppPage() {
       a.click();
 
       URL.revokeObjectURL(url);
+
+      const limpa = novaAmostra();
+      setAmostras([limpa]);
+      setActivaId(limpa.id);
+      setNumeroAnalise("");
+      setTextoOtimizado(null);
+      toast.success(
+        "Documento exportado. Campos limpos para a próxima análise.",
+      );
     } catch {
       toast.error(
         "Não foi possível gerar o documento Word.",
