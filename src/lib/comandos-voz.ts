@@ -562,7 +562,7 @@ export function interpretarComando(texto: string): Comando | null {
 
   if (/^(copiar|copia|copiar texto|copiar tudo|copia tudo)$/.test(t)) return { tipo: "copiar" };
 
-  if (/^(novo relatorio|limpar|limpa|apagar tudo)$/.test(t))
+  if (/^(novo relatorio|nova analise|outra analise|proxima analise|limpar|limpa|apagar tudo)$/.test(t))
     return { tipo: "novo-relatorio" };
 
   if (/^(terminar sessao|sair|fechar sessao|logout)$/.test(t))

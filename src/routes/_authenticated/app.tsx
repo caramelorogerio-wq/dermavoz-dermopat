@@ -976,7 +976,7 @@ function AppPage() {
       case "apagar-amostra":
         return "Apagar a amostra activa";
       case "novo-relatorio":
-        return "Limpar o relatório actual";
+        return "Começar nova análise (limpa a actual)";
       case "sair":
         return "Terminar sessão";
       default:
@@ -1103,7 +1103,14 @@ function AppPage() {
         a.setAmostras([nova]);
         a.setActivaId(nova.id);
         a.setNumeroAnalise("");
-        toast.success("Relatório limpo.");
+        toast.success("Nova análise — dite o número da análise.");
+        window.setTimeout(() => {
+          document
+            .getElementById("amostras-analise")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          const campo = document.getElementById(`titulo-${nova.id}`);
+          if (campo instanceof HTMLInputElement) campo.focus({ preventScroll: true });
+        }, 100);
         break;
       }
 
@@ -1628,7 +1635,7 @@ function AppPage() {
 
           <div className="space-y-6">
 
-            <section className="flex flex-col gap-4">
+            <section id="amostras-analise" className="flex scroll-mt-6 flex-col gap-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold text-foreground">
