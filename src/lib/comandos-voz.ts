@@ -193,6 +193,10 @@ export const normalizar = (frase: string) =>
 const VARIANTES_ACTIVACAO = [
   "comando",
   "comanda",
+  "ditado",
+  "ditar",
+  "ditados",
+  "dita",
   "camando",
   "com ando",
   "derma voz",
@@ -615,7 +619,7 @@ export const PALAVRAS_PARAGEM = [
  * palavra de paragem (com ou sem "app" à frente).
  */
 export function ehParagemDirecta(texto: string): boolean {
-  const t = normalizar(texto).replace(/^(app|comando)[,\s]+/, "").trim();
+  const t = normalizar(texto).replace(/^(app|comando|ditado|ditar)[,\s]+/, "").trim();
   if (!t) return false;
   return PALAVRAS_PARAGEM.some((p) => normalizar(p) === t);
 }
