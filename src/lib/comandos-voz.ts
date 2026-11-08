@@ -518,7 +518,10 @@ export function interpretarComando(texto: string): Comando | null {
     /^(?:(?:numero|n|numero de|codigo|codigo de|referencia|referencia de)\s+)?(?:da\s+|de\s+|do\s+)?analise(?:\s+numero)?\s+(.+)$/,
   );
   if (analise?.[1]) {
-    const valor = juntarCodigo(analise[1]);
+    // As análises começam sempre por "DM": o reconhecimento confunde D com B.
+    const valor = juntarCodigo(analise[1])
+      .replace(/^(?:BEM|BM|DEM|BEEME|DEEME)/, "DM")
+      .replace(/^DM([A-Z])-?(\d)/, "DM$1 $2");
     if (valor) return { tipo: "analise", valor };
   }
 
