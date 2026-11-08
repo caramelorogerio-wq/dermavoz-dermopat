@@ -991,9 +991,14 @@ function AppPage() {
       case "analise": {
         a.setNumeroAnalise(c.valor);
         toast.success(`N.º da análise preenchido: ${c.valor}`);
-        const campo = document.getElementById("numero-analise");
+        const primeira = a.amostras[0];
+        const campo =
+          (primeira && document.getElementById(`titulo-${primeira.id}`)) ||
+          document.getElementById("numero-analise");
+        document
+          .getElementById("amostras-analise")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
         if (campo) {
-          campo.scrollIntoView({ behavior: "smooth", block: "center" });
           campo.classList.add("ring-2", "ring-clinical");
           window.setTimeout(() => campo.classList.remove("ring-2", "ring-clinical"), 2000);
         }
