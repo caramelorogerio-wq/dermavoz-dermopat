@@ -59,7 +59,11 @@ export const gerarORU = ({
 }: DadosHL7): string => {
   const ts = dataHL7(data);
   const analise = escaparHL7(numeroAnalise.trim() || "SEM-NUMERO");
-  const usaveis = amostras.filter((a) => a.texto.trim());
+  const comTexto = amostras.filter((a) => a.texto.trim());
+  // Transcrição contínua: todas as amostras num só texto, sem rótulos.
+  const usaveis = comTexto.length
+    ? [{ ...comTexto[0], titulo: numeroAnalise.trim() || "Relatório", texto: comTexto.map((a) => a.texto.trim()).join("\n") }]
+    : [];
 
   const segmentos: string[] = [];
 
@@ -157,7 +161,11 @@ export const gerarBundleFhir = ({
 }: DadosHL7) => {
   const analise = numeroAnalise.trim() || "SEM-NUMERO";
   const emissao = data.toISOString();
-  const usaveis = amostras.filter((a) => a.texto.trim());
+  const comTexto = amostras.filter((a) => a.texto.trim());
+  // Transcrição contínua: todas as amostras num só texto, sem rótulos.
+  const usaveis = comTexto.length
+    ? [{ ...comTexto[0], titulo: numeroAnalise.trim() || "Relatório", texto: comTexto.map((a) => a.texto.trim()).join("\n") }]
+    : [];
 
   const entradas = usaveis.flatMap((a, i) => {
     const ordem = i + 1;
