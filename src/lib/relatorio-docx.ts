@@ -272,7 +272,6 @@ export async function gerarRelatorioDocx({
           },
         ];
 
-  const varias = lista.length > 1;
 
   const corpoAmostra = (
     amostra: AmostraDocx,
@@ -280,25 +279,6 @@ export async function gerarRelatorioDocx({
     primeiroBloco: number,
   ): (Paragraph | Table)[] => {
     const paragrafos: (Paragraph | Table)[] = [];
-
-    if (varias || amostra.titulo.trim()) {
-      paragrafos.push(
-        new Paragraph({
-          heading: HeadingLevel.HEADING_2,
-          spacing: { before: indice === 0 ? 120 : 360, after: 120 },
-          children: [
-            new TextRun({
-              text:
-                amostra.titulo.trim() || `Amostra ${indice + 1}`,
-              bold: true,
-              size: 24,
-              color: "1F4E79",
-              font: "Century Gothic",
-            }),
-          ],
-        }),
-      );
-    }
 
     paragrafos.push(
       ...amostra.texto
@@ -466,13 +446,6 @@ export async function gerarRelatorioDocx({
               }),
             ],
           }),
-
-          ...((varias
-            ? [
-                linha("N.º da análise", titulo),
-                linha("N.º de amostras", String(lista.length)),
-              ]
-            : []).flat() as Paragraph[]),
 
           ...(lista.flatMap((amostra, indice) =>
             corpoAmostra(
