@@ -1033,7 +1033,7 @@ function AppPage() {
 
           // Escuta reactivada: o comando de paragem tem de continuar a funcionar.
           setVozSuspensa(false);
-          toast.success("A gravar — diga \"Comando, parar\" (ou Esc).");
+          toast.success("A gravar — diga \"parar\" (ou Esc).");
         })();
         break;
       }
@@ -1184,7 +1184,7 @@ function AppPage() {
         if (/^(nao|cancelar|não|nope)$/.test(t)) {
           setSugestoes([]);
           falhasSeguidasRef.current = 0;
-          toast.info("Sugestão ignorada. Diga \"Comando, ajuda\" para ver os comandos.");
+          toast.info("Sugestão ignorada. Diga \"ajuda\" para ver os comandos.");
           return;
         }
       }
@@ -1199,7 +1199,7 @@ function AppPage() {
 
       // Modo guiado do resumo técnico: respostas curtas, sem dizer "App".
       const campo = campoResumoRef.current;
-      if (campo && !aGravarRef.current && corpo === null) {
+      if (campo && !aGravarRef.current) {
         const r = interpretarRespostaResumo(campo, transcript);
         if (!r) {
           toast.error(
@@ -1263,6 +1263,8 @@ function AppPage() {
         if (aGravarRef.current) return; // ditado em curso: ignorar ruído
 
         const sugestoesOuvidas = sugerirComandos(corpo);
+        // Sem palavra de activação, conversa solta não deve gerar erros.
+        if (!sugestoesOuvidas.some((s) => s.score >= 0.6)) return;
         const primeira = sugestoesOuvidas[0];
         if (primeira && primeira.score >= 0.9) {
           falhasSeguidasRef.current = 0;

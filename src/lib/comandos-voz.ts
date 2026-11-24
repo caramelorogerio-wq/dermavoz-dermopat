@@ -225,7 +225,8 @@ export function extrairComando(frase: string): string | null {
     if (n === v) return "";
     if (n.startsWith(`${v} `)) return n.slice(v.length + 1).trim();
   }
-  return null;
+  // Comandos directos: já não é preciso palavra de activação.
+  return n;
 }
 
 const numeroDe = (palavra: string | undefined): number | undefined => {
@@ -580,29 +581,28 @@ export function interpretarComando(texto: string): Comando | null {
 
 /** Lista mostrada no diálogo de ajuda. */
 export const LISTA_COMANDOS: { dizer: string; faz: string }[] = [
-  { dizer: "Comando, análise <número>", faz: "Preenche o n.º da análise" },
+  { dizer: "análise <número>", faz: "Preenche o n.º da análise" },
   {
-    dizer: "Comando, análise dê eme pê traço zero zero um",
+    dizer: "análise dê eme pê traço zero zero um",
     faz: "Códigos ditados letra a letra, com traço ou barra",
   },
 
-  { dizer: "Comando, iniciar gravação", faz: "Começa a gravar" },
-  { dizer: "Comando, parar", faz: "Pára e transcreve" },
-  { dizer: "Comando, nova amostra", faz: "Cria uma amostra" },
-  { dizer: "Comando, amostra dois", faz: "Muda para essa amostra" },
-  { dizer: "Comando, apagar amostra", faz: "Remove a amostra activa (confirmar)" },
-  { dizer: "Comando, separar amostras", faz: "Separa o ditado em amostras" },
-  { dizer: "Comando, otimizar", faz: "Otimiza o relatório com IA" },
-  { dizer: "Comando, guardar", faz: "Guarda o relatório" },
-  { dizer: "Comando, exportar", faz: "Gera o ficheiro Word" },
-  { dizer: "Comando, copiar", faz: "Copia o texto" },
-  { dizer: "Comando, repetir", faz: "Repete a última frase ouvida" },
-  { dizer: "Comando, novo relatório", faz: "Limpa tudo (confirmar)" },
-  { dizer: "Comando, terminar sessão", faz: "Sai da conta (confirmar)" },
-  { dizer: "Comando, resumo técnico", faz: "Preenche o resumo passo a passo" },
+  { dizer: "iniciar gravação", faz: "Começa a gravar" },
+  { dizer: "parar", faz: "Pára e transcreve" },
+  { dizer: "nova amostra", faz: "Cria uma amostra" },
+  { dizer: "amostra dois", faz: "Muda para essa amostra" },
+  { dizer: "apagar amostra", faz: "Remove a amostra activa (confirmar)" },
+  { dizer: "separar amostras", faz: "Separa o ditado em amostras" },
+  { dizer: "otimizar", faz: "Otimiza o relatório com IA" },
+  { dizer: "guardar", faz: "Guarda o relatório" },
+  { dizer: "exportar", faz: "Gera o ficheiro Word" },
+  { dizer: "copiar", faz: "Copia o texto" },
+  { dizer: "repetir", faz: "Repete a última frase ouvida" },
+  { dizer: "novo relatório", faz: "Limpa tudo (confirmar)" },
+  { dizer: "terminar sessão", faz: "Sai da conta (confirmar)" },
+  { dizer: "resumo técnico", faz: "Preenche o resumo passo a passo" },
   { dizer: "3 fragmentos · 2 blocos · seccionado · inclusão total", faz: "Atalhos do resumo" },
-  { dizer: "Sem gravar: análise DMP 3057, exportar, otimizar, copiar…", faz: "Funcionam sem dizer «Comando»" },
-  { dizer: "Comando, ajuda", faz: "Mostra esta lista" },
+  { dizer: "ajuda", faz: "Mostra esta lista" },
 ];
 
 /** Palavras que param a gravação mesmo sem a palavra de activação. */
