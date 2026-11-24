@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,31 @@ export function ListaAmostras({
   onMover,
   campoResumoActivo = null,
 }: Props) {
+  const seccoes = useRef(new Map<string, HTMLElement>());
+  const activa = amostras.find((a) => a.id === activaId);
+  const textoActivo = activa?.texto.length ?? 0;
+
+  // Mantém no monitor a amostra em trabalho (ao mudar de amostra ou ao
+  // receber texto ditado), sem roubar o foco ao campo que está a ser editado.
+  useEffect(() => {
+    if (!activaId) return;
+    const el = seccoes.current.get(activaId);
+    if (!el) return;
+    const ta = el.querySelector("textarea");
+    if (ta && document.activeElement !== ta) ta.scrollTop = ta.scrollHeight;
+    const r = el.getBoundingClientRect();
+    if (r.top < 0 || r.top > window.innerHeight * 0.6) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [activaId, textoActivo]);
+
+  // Resumo técnico guiado: mostra o campo a ser preenchido.
+  useEffect(() => {
+    if (!campoResumoActivo || !activaId) return;
+    const el = seccoes.current.get(activaId);
+    el?.querySelector("[data-resumo]")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [campoResumoActivo, activaId]);
+
   return (
     <div className="space-y-4">
       {amostras.map((amostra, indice) => {
@@ -47,10 +73,14 @@ export function ListaAmostras({
         return (
           <section
             key={amostra.id}
+            ref={(el) => {
+              if (el) seccoes.current.set(amostra.id, el);
+              else seccoes.current.delete(amostra.id);
+            }}
             onFocus={() => onActivar(amostra.id)}
             className={`panel space-y-4 p-6 transition-colors ${
               activa
-                ? "ring-2 ring-primary/40"
+                ? "scroll-mt-6 ring-2 ring-primary"
                 : "opacity-95"
             }`}
           >
@@ -134,6 +164,7 @@ export function ListaAmostras({
               className="min-h-[220px] resize-none text-sm leading-relaxed"
             />
 
+            <div data-resumo>
             <ResumoTecnico
               idPrefix={amostra.id}
               compacto
@@ -162,8 +193,7 @@ export function ListaAmostras({
                 })
               }
             />
-
-
+            </div>
           </section>
         );
       })}
